@@ -39,11 +39,38 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Assemble APK (capture clear build diagnostics)
+      - name: Assemble APK (show compiler errors)
         shell: bash
         run: |
+          # Preserve the Gradle exit code while saving its full output.
           set -o pipefail
-          gradle --no-daemon --console=plain :app:assembleDebug 2>&1 | tee gradle-build.log
+          exit_code=0
+          gradle --no-daemon --console=plain :app:assembleDebug 2>&1 | tee gradle-build.log || exit_code=$?
+
+          if [ "$exit_code" -ne 0 ]; then
+            # Kotlin emits "e: file:///...:line:col: ...". Display those
+            # diagnostics in the job and on the run's Summary tab.
+            echo '::group::Compilation errors and first failure'
+            grep -n -E '^e: |^error: |^> Task .* FAILED|^\* What went wrong:|^Execution failed for task|^FAILURE:' gradle-build.log \
+              | head -n 100 || true
+            echo '::endgroup::'
+
+            {
+              echo '## Android build failed'
+              echo
+              echo 'The first Kotlin `e:` line below usually points to the source file and line to fix.'
+              echo
+              echo '```text'
+              grep -E '^e: |^error: |^> Task .* FAILED|^\* What went wrong:|^Execution failed for task|^FAILURE:' gradle-build.log \
+                | head -n 100 || true
+              echo '```'
+              echo
+              echo 'For full context, download the **MonochromeReader-gradle-build-log** artifact.'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            # A missing grep match should not hide the actual build failure.
+            exit "$exit_code"
+          fi
 
       - name: Upload Gradle log if the build fails
         if: failure()

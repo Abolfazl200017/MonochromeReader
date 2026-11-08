@@ -45,3 +45,17 @@ different build problem. This environment cannot run an Android build locally.
 This workflow captures the complete `gradle-build.log`. Open the failed GitHub Actions run, download the **MonochromeReader-gradle-build-log** artifact under Artifacts, and search for `* What went wrong:`, `e:`, `error:`, or `FAILED`. The first diagnostic block (not the last Java stack-trace lines) identifies the problem.
 
 The starter's reader layout was also adjusted so the scrollable text fills the space above the navigation bar. This is not claimed as the cause of any particular build failure.
+
+## Kotlin compiler errors in GitHub Actions (v4)
+
+If `:app:compileDebugKotlin FAILED` occurs, the action now extracts Kotlin `e:`
+messages and source-file locations into a collapsible section of the build step
+and into the **Summary** tab of the workflow run. It also uploads the full
+`gradle-build.log` artifact on failure.
+
+These changes **only improve diagnostics**: they do not solve an unknown
+Kotlin compile error without the compiler messages. For run 42452609600, the
+public GitHub page confirms the failure but does not expose the private
+job logs when viewed signed out. Download the previous run's
+`MonochromeReader-gradle-build-log` artifact from the signed-in GitHub UI,
+or rerun with this workflow and copy the first `e:` diagnostic.
