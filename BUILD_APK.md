@@ -10,7 +10,7 @@ This project is a Kotlin / Jetpack Compose Android starter. **No APK is bundled 
 4. When the workflow succeeds, open the run and download the **MonochromeReader-debug-apk** artifact.
 5. Extract the downloaded artifact ZIP. The file inside is **`app-debug.apk`**, a debug-signed installable APK.
 
-The workflow uses Java 17, Gradle 8.9, Android SDK 35 and the versions in the original Gradle build files. No signing credentials are needed for a **debug** build.
+The workflow uses Java 17, Gradle 8.9, Android SDK 35 and the versions in the original Gradle build files. SDK setup uses `android-actions/setup-android@v4` with `packages: platform-tools` to avoid the discontinued legacy `tools` SDK package. No signing credentials are needed for a **debug** build.
 
 ## Option B — Android Studio
 
@@ -25,3 +25,17 @@ The workflow uses Java 17, Gradle 8.9, Android SDK 35 and the versions in the or
 - **Debug APK only:** installable on a device for testing, not suitable as a Play Store release. A release build needs your private signing key.
 - This starter has placeholders for Fidibo login/Fidiplus and no PDF page renderer. A successful APK build does not add those features.
 - This bundle was prepared in an environment without the Android SDK, Gradle, or network access to their download repositories; the Gradle build was **not** executed or verified here.
+
+## Troubleshooting: `Failed to find package 'tools'`
+
+Older `android-actions/setup-android` versions attempt to install Google's discontinued
+legacy `tools` SDK package by default. This causes `sdkmanager` to exit with code 1
+**before Gradle starts**. This project now uses `setup-android@v4` and explicitly
+sets `packages: 'platform-tools'` to prevent that failure. The action installs
+command-line tools automatically. The next step installs Android platform 35 and
+build-tools 35.0.0 separately.
+
+If you still see this error, ensure you uploaded the **updated**
+`.github/workflows/build-apk.yml` to the branch you are running.
+If the new run fails at `Assemble APK`, review the Gradle stack trace; that is a
+different build problem. This environment cannot run an Android build locally.

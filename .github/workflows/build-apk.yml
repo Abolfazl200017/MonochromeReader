@@ -25,7 +25,11 @@ jobs:
           java-version: '17'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          # Google's legacy SDK `tools` package is no longer published.
+          # Request only platform-tools; the action installs cmdline-tools itself.
+          packages: 'platform-tools'
 
       - name: Install Android SDK 35
         run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
