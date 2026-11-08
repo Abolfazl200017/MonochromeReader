@@ -39,8 +39,19 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Assemble APK
-        run: gradle --no-daemon --stacktrace :app:assembleDebug
+      - name: Assemble APK (capture clear build diagnostics)
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle --no-daemon --console=plain :app:assembleDebug 2>&1 | tee gradle-build.log
+
+      - name: Upload Gradle log if the build fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MonochromeReader-gradle-build-log
+          path: gradle-build.log
+          if-no-files-found: warn
 
       - name: Upload downloadable APK
         uses: actions/upload-artifact@v4

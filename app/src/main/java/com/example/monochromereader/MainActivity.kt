@@ -201,14 +201,16 @@ fun ReaderScreen(
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.End) {
             Text("Page ${pageIndex + 1}", color = muted, fontSize = 12.sp)
         }
-        SelectionContainer {
-            Text(
-                text = if (pageText.isBlank()) "This file could not be previewed yet. Try importing an EPUB or PDF document." else pageText,
-                modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 26.dp, vertical = 28.dp),
-                color = fg, fontSize = fontSize.sp,
-                lineHeight = (fontSize * 1.65f).sp,
-                fontFamily = when (fontName) { "Sans" -> FontFamily.SansSerif; "Monospace" -> FontFamily.Monospace; else -> FontFamily.Serif }
-            )
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            SelectionContainer {
+                Text(
+                    text = if (pageText.isBlank()) "This file could not be previewed yet. Try importing an EPUB or PDF document." else pageText,
+                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 26.dp, vertical = 28.dp),
+                    color = fg, fontSize = fontSize.sp,
+                    lineHeight = (fontSize * 1.65f).sp,
+                    fontFamily = when (fontName) { "Sans" -> FontFamily.SansSerif; "Monospace" -> FontFamily.Monospace; else -> FontFamily.Serif }
+                )
+            }
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Previous", color = fg, modifier = Modifier.clickable { onPrev() }.padding(8.dp))

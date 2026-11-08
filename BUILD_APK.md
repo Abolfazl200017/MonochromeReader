@@ -39,3 +39,9 @@ If you still see this error, ensure you uploaded the **updated**
 `.github/workflows/build-apk.yml` to the branch you are running.
 If the new run fails at `Assemble APK`, review the Gradle stack trace; that is a
 different build problem. This environment cannot run an Android build locally.
+
+## If a Gradle build fails
+
+This workflow captures the complete `gradle-build.log`. Open the failed GitHub Actions run, download the **MonochromeReader-gradle-build-log** artifact under Artifacts, and search for `* What went wrong:`, `e:`, `error:`, or `FAILED`. The first diagnostic block (not the last Java stack-trace lines) identifies the problem.
+
+The starter's reader layout was also adjusted so the scrollable text fills the space above the navigation bar. This is not claimed as the cause of any particular build failure.
