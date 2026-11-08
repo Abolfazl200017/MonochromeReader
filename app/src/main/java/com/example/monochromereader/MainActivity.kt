@@ -106,7 +106,6 @@ fun ReaderApp() {
                         onLanguage = { language = it; prefs.edit().putString("lang", it).apply() }
                     )
                     "account" -> AccountScreen(fg, muted, onBack = { screen = "library" })
-                    "plus" -> FidiplusScreen(fg, muted, onBack = { screen = "library" })
                     else -> LibraryScreen(
                         books = books, fg = fg, muted = muted, isDark = isDark, language = language,
                         onImport = { importLauncher.launch(arrayOf("application/epub+zip", "application/pdf", "application/octet-stream")) },
@@ -116,7 +115,6 @@ fun ReaderApp() {
                             screen = "reader"
                         },
                         onAccount = { screen = "account" },
-                        onPlus = { screen = "plus" },
                         onSettings = { screen = "settings" }
                     )
                 }
@@ -137,27 +135,26 @@ fun Header(title: String, fg: Color, muted: Color, back: (() -> Unit)? = null, a
 @Composable
 fun LibraryScreen(
     books: List<Book>, fg: Color, muted: Color, isDark: Boolean, language: String,
-    onImport: () -> Unit, onOpen: (Book) -> Unit, onAccount: () -> Unit, onPlus: () -> Unit, onSettings: () -> Unit
+    onImport: () -> Unit, onOpen: (Book) -> Unit, onAccount: () -> Unit, onSettings: () -> Unit
 ) {
     val fa = language == "fa"
     Column(Modifier.fillMaxSize()) {
         Header(if (fa) "کتابخانه من" else "My library", fg, muted, action = {
-            Text(if (fa) "ورود" else "Account", color = fg, modifier = Modifier.clickable { onAccount() }.padding(8.dp))
+            Text(if (fa) "حساب فیدیبو" else "Fidibo account", color = fg, modifier = Modifier.clickable { onAccount() }.padding(8.dp))
         })
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedButton(onClick = onImport, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(contentColor = fg)) {
-                Text(if (fa) "افزودن کتاب" else "Import book")
+            OutlinedButton(onClick = onImport, colors = ButtonDefaults.outlinedButtonColors(contentColor = fg)) {
+                Text(if (fa) "افزودن فایل" else "Add local file")
             }
-            OutlinedButton(onClick = onPlus, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(contentColor = fg)) {
-                Text("Fidiplus")
-            }
+            Text(if (fa) "فقط کتاب‌های من" else "My books only", color = muted, fontSize = 12.sp,
+                modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
         }
         if (books.isEmpty()) {
             Box(Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("▤", color = muted, fontSize = 54.sp)
-                    Text(if (fa) "هنوز کتابی اضافه نکرده‌اید" else "Your library is empty", color = fg, fontSize = 18.sp)
-                    Text(if (fa) "فایل EPUB یا PDF خود را وارد کنید" else "Import an EPUB or PDF file to get started", color = muted, fontSize = 14.sp)
+                    Text(if (fa) "هنوز فایلی به کتابخانه اضافه نشده" else "No local books yet", color = fg, fontSize = 18.sp)
+                    Text(if (fa) "کتاب‌های فیدیبو نیاز به اتصال رسمی حساب دارند" else "Fidibo books require an official account connection", color = muted, fontSize = 14.sp)
                 }
             }
         } else {
@@ -182,7 +179,6 @@ fun LibraryScreen(
         }
         Row(Modifier.fillMaxWidth().border(0.5.dp, muted.copy(alpha = .3f)).padding(vertical = 12.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
             Text(if (fa) "کتابخانه" else "Library", color = fg)
-            Text("Fidiplus", color = muted, modifier = Modifier.clickable { onPlus() })
             Text(if (fa) "تنظیمات" else "Settings", color = muted, modifier = Modifier.clickable { onSettings() })
         }
     }
@@ -264,24 +260,29 @@ fun SettingLabel(text: String, muted: Color) {
 
 @Composable
 fun AccountScreen(fg: Color, muted: Color, onBack: () -> Unit) {
+    val context = LocalContext.current
     Column(Modifier.fillMaxSize()) {
-        Header("Fidibo account", fg, muted, back = onBack)
+        Header("Fidibo library", fg, muted, back = onBack)
         Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Connect your existing Fidibo account", color = fg, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-            Text("Official Fidibo authentication is not connected in this starter project. Login requires an authorized API or SDK from Fidibo. No password is collected or stored here.", color = muted)
-            OutlinedButton(onClick = {}, enabled = false) { Text("Connect Fidibo (integration pending)") }
-        }
-    }
-}
-
-@Composable
-fun FidiplusScreen(fg: Color, muted: Color, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize()) {
-        Header("Fidiplus", fg, muted, back = onBack)
-        Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Your Fidiplus membership", color = fg, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-            Text("Membership status and subscription books will appear here once official Fidibo account access is available.", color = muted)
-            Text("This app does not bypass DRM or download protected books.", color = muted, fontSize = 12.sp)
+            Text("Your existing books", color = fg, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                "This app is library-only: no store, purchases, or subscription pages. " +
+                    "To show books already in your Fidibo account inside this app, " +
+                    "Fidibo must provide an authorized account sign-in and library API. " +
+                    "That connection is not implemented; this app does not ask for your password.",
+                color = muted
+            )
+            OutlinedButton(onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://fidibo.com"))
+                context.startActivity(intent)
+            }) {
+                Text("Open official Fidibo website")
+            }
+            Text(
+                "Opening the website does not sign you into this app or sync your purchased books. " +
+                    "You can still view unprotected local EPUB files imported into My Library.",
+                color = muted, fontSize = 12.sp
+            )
         }
     }
 }

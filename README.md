@@ -15,10 +15,11 @@ A lightweight Kotlin + Jetpack Compose starter for a monochrome Persian/English 
 - EPUB text extraction for unencrypted EPUB files.
 - Reader controls, font family and font size preferences.
 - Basic highlight action that saves a short excerpt from the current reader page.
-- Fidibo account and Fidiplus integration placeholder screens.
+- A library-only app (no bookstore or subscription screens).
+- An account information page with a link to the official Fidibo website; it does not claim to authenticate or synchronize your account.
 
 ## Important limitations
-- Fidibo login, personal cloud library, Fidiplus entitlement, and protected Fidibo books require an official authorized API/SDK or partner integration. This project does not collect Fidibo passwords or bypass DRM.
+- Your existing purchased Fidibo books **cannot yet be shown in this app**. Official account authentication and access to a user's private library require an authorized API/SDK or partnership. We did not find a documented public integration for this. The app never collects Fidibo passwords or bypasses DRM.
 - PDF files can be imported and listed, but PDF page rendering is not implemented in this starter.
 - EPUB navigation is a simple text extraction prototype, not a full standards-compliant EPUB engine. It does not yet support chapter navigation, embedded fonts, images, CSS layout, annotations anchored to exact text ranges, or DRM-protected files.
 - The orientation setting is stored as a preference; system auto-rotation currently controls the actual device orientation.
@@ -27,6 +28,6 @@ A lightweight Kotlin + Jetpack Compose starter for a monochrome Persian/English 
 ## Next development milestones
 1. Integrate a full EPUB engine and Android PdfRenderer.
 2. Implement robust bookmarks, page/position persistence, and text-range highlights.
-3. Add secure sign-in only after Fidibo provides an authorized integration method.
+3. Add secure Fidibo account sign-in and owned-book synchronization only when authorized APIs/SDKs are available.
 4. Polish Persian translations and RTL navigation throughout.
 5. Add tests, app icon, release signing, and APK optimization.
